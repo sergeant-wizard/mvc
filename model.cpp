@@ -1,22 +1,31 @@
-#include <iostream>
+#include "model.h"
 
-#define DECLARE_SINGLETON(S) \
-public: \
-    static S& getInstance(){\
-        static S instance; \
-        return instance; \
-    } \
-private: \
-    S() {}; \
-    S(S const&); \
-    void operator=(S const&); \
+void Model::updateEntity(int value){
+    entity=value;
+    notifyChange();
+}
 
-class Model{
-    DECLARE_SINGLETON(Model)
-};
+void Model::addViewController(ViewController* viewController){
+    viewControllerList.push_back(viewController);
+}
 
-int main(void){
-    Model *model=&Model::getInstance();
-    return 0;
+void Model::removeViewController(ViewController* viewController){
+    std::vector<ViewController*>::iterator it=find(
+        viewControllerList.begin(),
+        viewControllerList.end(),
+        viewController
+    );
+    if(it==viewControllerList.end())
+        return;
+    viewControllerList.erase(it);
+}
+
+int Model::getValue(void)const{
+    return entity;
+}
+
+void Model::notifyChange(){
+    for(unsigned i=0;i<viewControllerList.size();i++)
+        viewControllerList[i]->receiveNotification(entity);
 }
 
